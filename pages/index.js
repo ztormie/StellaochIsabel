@@ -11,6 +11,7 @@ export default function StellaBookingApp() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setBooking({ ...booking, [e.target.name]: e.target.value });
@@ -20,9 +21,9 @@ export default function StellaBookingApp() {
     e.preventDefault();
     setSubmitted(false);
     setError(null);
+    setLoading(true);
 
     try {
-      // ✅ Convert booking object to URL-encoded format
       const formData = new URLSearchParams();
       Object.entries(booking).forEach(([key, value]) => formData.append(key, value));
 
@@ -31,9 +32,9 @@ export default function StellaBookingApp() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded", // ✅ Prevents CORS issues
+            "Content-Type": "application/x-www-form-urlencoded",
           },
-          body: formData.toString(), // ✅ Correct format for Google Apps Script
+          body: formData.toString(),
         }
       );
 
@@ -41,46 +42,84 @@ export default function StellaBookingApp() {
         throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
       }
 
-      const result = await response.json();
-      console.log("Response from API:", result);
       setSubmitted(true);
     } catch (error) {
-      console.error("Fel vid API-anrop:", error);
       setError("Det gick inte att skicka bokningen. Kontrollera API-URL och försök igen senare.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "90%", margin: "auto", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
-        Stella och Isabels Bokningssida
-      </h1>
+    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-6">
+      <h1 className="text-center text-xl font-bold mb-4">Stella och Isabels Bokning</h1>
       {!submitted ? (
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required />
-          <select name="service" onChange={handleChange} required>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Ditt namn"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          />
+          <select
+            name="service"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          >
             <option value="">Välj tjänst</option>
             <option value="Hundpromenad">Hundpromenad</option>
             <option value="Barnpassning">Barnpassning</option>
           </select>
-          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required />
-          <label>Välj datum:</label>
-          <input type="date" name="date" onChange={handleChange} required />
-          <label>Välj tid:</label>
-          <input type="time" name="time" onChange={handleChange} required />
-          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required />
-          <button type="submit">Boka</button>
+          <input
+            type="text"
+            name="location"
+            placeholder="Adress eller område"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          />
+          <input
+            type="date"
+            name="date"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          />
+          <input
+            type="time"
+            name="time"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          />
+          <input
+            type="text"
+            name="contact"
+            placeholder="Telefonnummer eller e-post"
+            onChange={handleChange}
+            required
+            className="border p-2 rounded"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
+          >
+            {loading ? "Skickar..." : "Boka"}
+          </button>
         </form>
       ) : error ? (
-        <div style={{ textAlign: "center", padding: "20px", border: "1px solid red", borderRadius: "8px", backgroundColor: "#ffcccc" }}>
-          <h2>Fel vid bokning!</h2>
+        <div className="text-center p-4 border border-red-500 bg-red-100 rounded">
+          <h2 className="font-bold text-red-700">Fel vid bokning!</h2>
           <p>{error}</p>
         </div>
       ) : (
-        <div style={{ textAlign: "center", padding: "20px", border: "1px solid #ddd", borderRadius: "8px", backgroundColor: "#f9f9f9" }}>
-          <h2>Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig så fort vi har möjlighet med en bekräftelse på bokningen.</p>
-  
+        <div className="text-center p-4 border border-green-500 bg-green-100 rounded">
+          <h2 className="font-bold text-green-700">Bokning skickad!</h2>
+          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig med en bekräftelse.</p>
         </div>
       )}
     </div>
