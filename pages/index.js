@@ -79,8 +79,8 @@ export default function StellaBookingApp() {
       ) : (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid #ddd", borderRadius: "8px", backgroundColor: "#f9f9f9" }}>
           <h2>Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Stella kommer att kontakta dig så fort vi har möjlighet.</p>
-          <p>Plats: {booking.location}</p>
+          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig så fort vi har möjlighet med en bekräftelse på bokningen.</p>
+  
         </div>
       )}
     </div>
