@@ -51,77 +51,79 @@ export default function StellaBookingApp() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-6">
-      <h1 className="text-center text-xl font-bold mb-4">Stella och Isabels Bokning</h1>
-      {!submitted ? (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Ditt namn"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          />
-          <select
-            name="service"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          >
-            <option value="">Välj tjänst</option>
-            <option value="Hundpromenad">Hundpromenad</option>
-            <option value="Barnpassning">Barnpassning</option>
-          </select>
-          <input
-            type="text"
-            name="location"
-            placeholder="Adress eller område"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="date"
-            name="date"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="time"
-            name="time"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
-            name="contact"
-            placeholder="Telefonnummer eller e-post"
-            onChange={handleChange}
-            required
-            className="border p-2 rounded"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
-          >
-            {loading ? "Skickar..." : "Boka"}
-          </button>
-        </form>
-      ) : error ? (
-        <div className="text-center p-4 border border-red-500 bg-red-100 rounded">
-          <h2 className="font-bold text-red-700">Fel vid bokning!</h2>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <div className="text-center p-4 border border-green-500 bg-green-100 rounded">
-          <h2 className="font-bold text-green-700">Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig med en bekräftelse.</p>
-        </div>
-      )}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="w-full max-w-sm bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-center text-2xl font-bold mb-6">Stella och Isabels Bokning</h1>
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Ditt namn"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            />
+            <select
+              name="service"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            >
+              <option value="">Välj tjänst</option>
+              <option value="Hundpromenad">Hundpromenad</option>
+              <option value="Barnpassning">Barnpassning</option>
+            </select>
+            <input
+              type="text"
+              name="location"
+              placeholder="Adress eller område"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            />
+            <input
+              type="date"
+              name="date"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            />
+            <input
+              type="time"
+              name="time"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            />
+            <input
+              type="text"
+              name="contact"
+              placeholder="Telefonnummer eller e-post"
+              onChange={handleChange}
+              required
+              className="border p-3 rounded w-full text-lg"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-500 text-white p-3 rounded-lg w-full text-lg font-semibold hover:bg-blue-600 transition"
+            >
+              {loading ? "Skickar..." : "Boka"}
+            </button>
+          </form>
+        ) : error ? (
+          <div className="text-center p-4 border border-red-500 bg-red-100 rounded">
+            <h2 className="font-bold text-red-700">Fel vid bokning!</h2>
+            <p>{error}</p>
+          </div>
+        ) : (
+          <div className="text-center p-4 border border-green-500 bg-green-100 rounded">
+            <h2 className="font-bold text-green-700">Bokning skickad!</h2>
+            <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig med en bekräftelse.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
