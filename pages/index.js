@@ -23,7 +23,7 @@ export default function StellaBookingApp() {
 
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec",
+        "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec",
         {
           method: "POST",
           headers: {
