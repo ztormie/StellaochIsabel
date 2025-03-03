@@ -22,23 +22,20 @@ export default function StellaBookingApp() {
     setError(null);
 
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(booking),
-        }
-      );
+      const response = await fetch("https://script.google.com/macros/s/YOUR_NEW_API_URL/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(booking),
+      });
 
       if (!response.ok) {
         throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
       }
 
       const result = await response.json();
-      console.log(result);
+      console.log("Response from API:", result);
       setSubmitted(true);
     } catch (error) {
       console.error("Fel vid API-anrop:", error);
