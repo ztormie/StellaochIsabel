@@ -18,21 +18,25 @@ export default function StellaBookingApp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitted(false);
     setError(null);
 
     try {
       const response = await fetch("https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec", {
         method: "POST",
+        mode: "cors",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(booking),
       });
 
       if (!response.ok) {
-        throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
+        throw new Error(`Fel vid API-anrop. HTTP-status: ${response.status}`);
       }
+      
       const result = await response.json();
-      console.log(result);
+      console.log("Svar från API:", result);
+      setSubmitted(true);
     } catch (error) {
       console.error("Fel vid API-anrop:", error);
       setError("Det gick inte att skicka bokningen. Försök igen senare.");
