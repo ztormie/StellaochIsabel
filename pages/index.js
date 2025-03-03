@@ -22,24 +22,35 @@ export default function StellaBookingApp() {
     setError(null);
 
     try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec", {
-        method: "POST",
-        mode: "no-cors", // Försöker kringgå CORS-problem
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(booking),
-      });
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(booking),
+        }
+      );
 
-      console.log("API-anrop skickat", response);
+      if (!response.ok) {
+        throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
+      }
+
+      const result = await response.json();
+      console.log(result);
       setSubmitted(true);
     } catch (error) {
       console.error("Fel vid API-anrop:", error);
-      setError("Det gick inte att skicka bokningen. Försök igen senare.");
+      setError("Det gick inte att skicka bokningen. Kontrollera API-URL och försök igen senare.");
     }
   };
 
   return (
     <div style={{ padding: "20px", maxWidth: "90%", margin: "auto", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>Stella och Isabels Bokningssida</h1>
+      <h1 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
+        Stella och Isabels Bokningssida
+      </h1>
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
           <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
@@ -60,7 +71,9 @@ export default function StellaBookingApp() {
             <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "18px", color: "#888" }}>⏰</span>
           </div>
           <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
-          <button type="submit" style={{ padding: "14px", fontSize: "18px", backgroundColor: "#007BFF", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", textAlign: "center" }}>Boka</button>
+          <button type="submit" style={{ padding: "14px", fontSize: "18px", backgroundColor: "#007BFF", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", textAlign: "center" }}>
+            Boka
+          </button>
         </form>
       ) : error ? (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid red", borderRadius: "8px", backgroundColor: "#ffcccc" }}>
