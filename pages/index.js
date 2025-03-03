@@ -65,16 +65,28 @@ export default function StellaBookingApp() {
       </h1>
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <label>Ditt namn:</label>
           <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          
+          <label>Välj tjänst:</label>
           <select name="service" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
             <option value="">Välj tjänst</option>
             <option value="Hundpromenad">Hundpromenad</option>
             <option value="Barnpassning">Barnpassning</option>
           </select>
+          
+          <label>Adress eller område:</label>
           <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          
+          <label>Välj datum:</label>
           <input type="date" name="date" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          
+          <label>Välj tid:</label>
           <input type="time" name="time" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          
+          <label>Telefonnummer eller e-post:</label>
           <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          
           <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "5px", fontWeight: "bold", cursor: "pointer" }}>
             {loading ? "Skickar..." : "Boka"}
           </button>
