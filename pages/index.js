@@ -24,7 +24,6 @@ export default function StellaBookingApp() {
     setError(null);
     setLoading(true);
 
-    // Kontrollera att alla fält är ifyllda
     for (const key in booking) {
       if (!booking[key]) {
         setError("Vänligen fyll i alla fält innan du bokar.");
@@ -61,88 +60,88 @@ export default function StellaBookingApp() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-6">
         <h1 className="text-center text-2xl font-bold mb-6">Stella och Isabels Bokning</h1>
         {!submitted ? (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaUser className="text-gray-600 mr-3" />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            <div className="relative">
+              <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 name="name"
                 placeholder="Ditt namn"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               />
             </div>
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaDog className="text-gray-600 mr-3" />
+            <div className="relative">
+              <FaDog className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <select
                 name="service"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               >
                 <option value="">Välj tjänst</option>
                 <option value="Hundpromenad">Hundpromenad</option>
                 <option value="Barnpassning">Barnpassning</option>
               </select>
             </div>
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaMapMarkerAlt className="text-gray-600 mr-3" />
+            <div className="relative">
+              <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 name="location"
                 placeholder="Adress eller område"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               />
             </div>
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaCalendarAlt className="text-gray-600 mr-3" />
+            <div className="relative">
+              <FaCalendarAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="date"
                 name="date"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               />
             </div>
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaClock className="text-gray-600 mr-3" />
+            <div className="relative">
+              <FaClock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="time"
                 name="time"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               />
             </div>
-            <div className="flex items-center border p-3 rounded-lg bg-gray-100">
-              <FaPhone className="text-gray-600 mr-3" />
+            <div className="relative">
+              <FaPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 name="contact"
                 placeholder="Telefonnummer eller e-post"
                 onChange={handleChange}
                 required
-                className="bg-transparent outline-none w-full text-lg"
+                className="border p-3 pl-12 rounded-lg w-full text-lg focus:outline-blue-500"
               />
             </div>
-            {error && <p className="text-red-500 text-center">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-500 text-white p-3 rounded-lg w-full text-lg font-semibold hover:bg-blue-600 transition"
+              className="bg-green-600 text-white p-3 rounded-lg w-full text-lg font-semibold hover:bg-green-700 transition"
             >
               {loading ? "Skickar..." : "Boka"}
             </button>
           </form>
         ) : (
-          <div className="text-center p-4 border border-green-500 bg-green-100 rounded">
+          <div className="text-center p-4 border border-green-500 bg-green-100 rounded-lg">
             <h2 className="font-bold text-green-700">Bokning skickad!</h2>
             <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig med en bekräftelse.</p>
           </div>
