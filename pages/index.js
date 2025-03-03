@@ -22,14 +22,18 @@ export default function StellaBookingApp() {
     setError(null);
 
     try {
+      // ✅ Convert booking object to URL-encoded format
+      const formData = new URLSearchParams();
+      Object.entries(booking).forEach(([key, value]) => formData.append(key, value));
+
       const response = await fetch(
         "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded", // ✅ Prevents CORS issues
           },
-          body: JSON.stringify(booking),
+          body: formData.toString(), // ✅ Correct format for Google Apps Script
         }
       );
 
