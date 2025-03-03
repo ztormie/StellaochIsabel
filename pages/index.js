@@ -10,6 +10,7 @@ export default function StellaBookingApp() {
     contact: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setBooking({ ...booking, [e.target.name]: e.target.value });
@@ -18,24 +19,23 @@ export default function StellaBookingApp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+    setError(null);
 
     try {
       const response = await fetch("https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(booking),
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
       }
-      const result = await response.text();
+      const result = await response.json();
       console.log(result);
     } catch (error) {
       console.error("Fel vid API-anrop:", error);
+      setError("Det gick inte att skicka bokningen. Försök igen senare.");
     }
   };
 
@@ -64,6 +64,11 @@ export default function StellaBookingApp() {
           <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
           <button type="submit" style={{ padding: "14px", fontSize: "18px", backgroundColor: "#007BFF", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", textAlign: "center" }}>Boka</button>
         </form>
+      ) : error ? (
+        <div style={{ textAlign: "center", padding: "20px", border: "1px solid red", borderRadius: "8px", backgroundColor: "#ffcccc" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "bold" }}>Fel vid bokning!</h2>
+          <p style={{ fontSize: "16px" }}>{error}</p>
+        </div>
       ) : (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid #ddd", borderRadius: "8px", backgroundColor: "#f9f9f9" }}>
           <h2 style={{ fontSize: "20px", fontWeight: "bold" }}>Bokning skickad!</h2>
