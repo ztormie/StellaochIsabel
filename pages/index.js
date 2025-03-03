@@ -21,7 +21,7 @@ export default function StellaBookingApp() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "400px", margin: "auto", fontFamily: "Arial, sans-serif" }}>
-      <h1>Stellas Bokningssida</h1>
+      <h1>Stella och Isabels Bokningssida</h1>
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required />
@@ -38,7 +38,7 @@ export default function StellaBookingApp() {
       ) : (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid #ddd", borderRadius: "5px" }}>
           <h2>Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Stella kommer att kontakta dig.</p>
+          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig.</p>
         </div>
       )}
     </div>
