@@ -22,13 +22,16 @@ export default function StellaBookingApp() {
     setError(null);
 
     try {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(booking),
-      });
+      const response = await fetch(
+        "https://script.google.com/macros/s/YOUR_GOOGLE_SCRIPT_ID/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(booking),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
@@ -50,38 +53,30 @@ export default function StellaBookingApp() {
       </h1>
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
-          <select name="service" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }}>
+          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required />
+          <select name="service" onChange={handleChange} required>
             <option value="">Välj tjänst</option>
             <option value="Hundpromenad">Hundpromenad</option>
             <option value="Barnpassning">Barnpassning</option>
           </select>
-          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
-          <label style={{ fontSize: "16px", fontWeight: "bold" }}>Välj datum:</label>
-          <div style={{ position: "relative" }}>
-            <input type="date" name="date" onChange={handleChange} required placeholder="Välj ett datum" style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc", width: "100%" }} />
-            <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "18px", color: "#888" }}>📅</span>
-          </div>
-          <label style={{ fontSize: "16px", fontWeight: "bold" }}>Välj tid:</label>
-          <div style={{ position: "relative" }}>
-            <input type="time" name="time" onChange={handleChange} required placeholder="Välj en tid" style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc", width: "100%" }} />
-            <span style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "18px", color: "#888" }}>⏰</span>
-          </div>
-          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "12px", fontSize: "16px", borderRadius: "8px", border: "1px solid #ccc" }} />
-          <button type="submit" style={{ padding: "14px", fontSize: "18px", backgroundColor: "#007BFF", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", textAlign: "center" }}>
-            Boka
-          </button>
+          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required />
+          <label>Välj datum:</label>
+          <input type="date" name="date" onChange={handleChange} required />
+          <label>Välj tid:</label>
+          <input type="time" name="time" onChange={handleChange} required />
+          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required />
+          <button type="submit">Boka</button>
         </form>
       ) : error ? (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid red", borderRadius: "8px", backgroundColor: "#ffcccc" }}>
-          <h2 style={{ fontSize: "20px", fontWeight: "bold" }}>Fel vid bokning!</h2>
-          <p style={{ fontSize: "16px" }}>{error}</p>
+          <h2>Fel vid bokning!</h2>
+          <p>{error}</p>
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid #ddd", borderRadius: "8px", backgroundColor: "#f9f9f9" }}>
-          <h2 style={{ fontSize: "20px", fontWeight: "bold" }}>Bokning skickad!</h2>
-          <p style={{ fontSize: "16px" }}>Tack, {booking.name}! Stella kommer att kontakta dig så fort vi har möjlighet.</p>
-          <p style={{ fontSize: "16px" }}>Plats: {booking.location}</p>
+          <h2>Bokning skickad!</h2>
+          <p>Tack, {booking.name}! Stella kommer att kontakta dig så fort vi har möjlighet.</p>
+          <p>Plats: {booking.location}</p>
         </div>
       )}
     </div>
