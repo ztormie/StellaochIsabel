@@ -24,18 +24,12 @@ export default function StellaBookingApp() {
     try {
       const response = await fetch("https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec", {
         method: "POST",
-        mode: "cors",
-        credentials: "include",
+        mode: "no-cors", // Försöker kringgå CORS-problem
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(booking),
       });
 
-      if (!response.ok) {
-        throw new Error(`Fel vid API-anrop. HTTP-status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log("Svar från API:", result);
+      console.log("API-anrop skickat", response);
       setSubmitted(true);
     } catch (error) {
       console.error("Fel vid API-anrop:", error);
