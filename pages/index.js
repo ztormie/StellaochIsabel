@@ -1,114 +1,149 @@
-// Google Apps Script: doGet
-function doGet() {
-  try {
-    const availabilitySheet = SpreadsheetApp.openById(AVAILABILITY_SHEET_ID).getSheetByName("availability");
-    const bookingsSheet = SpreadsheetApp.openById(BOOKINGS_SHEET_ID).getActiveSheet();
+import { useState, useEffect } from "react";
 
-    if (!availabilitySheet) throw new Error("Sheet 'availability' not found!");
-    if (!bookingsSheet) throw new Error("Sheet 'bookings' not found!");
+// ✅ Define your Google Apps Script URL here
+const API_URL = "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec";
 
-    const bookedSlots = extractBookedSlots(bookingsSheet);
-    const availability = generateAvailability(SCHEDULE, bookedSlots);
+export default function StellaBookingApp() {
+  const [booking, setBooking] = useState({
+    name: "",
+    service: "",
+    date: "",
+    time: "",
+    location: "",
+    contact: "",
+  });
 
-    return sendCorsResponse(availability);
-  } catch (error) {
-    return sendCorsResponse({ error: "Ett fel uppstod: " + error.message });
-  }
-}
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [availability, setAvailability] = useState({});
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
 
-// Google Apps Script: doPost
-function doPost(e) {
-  try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return sendCorsResponse({ error: "Ingen data mottagen eller felaktig förfrågan." });
+  // ✅ Fetch available time slots from Google Apps Script on load
+  useEffect(() => {
+    fetch(API_URL)
+      .then(response => response.json())
+      .then(data => {
+        setAvailability(data);
+        setAvailableDates(Object.keys(data).filter(day => data[day].length > 0));
+      })
+      .catch(error => {
+        console.error("API Fetch Error:", error);
+        setError("Kunde inte ladda tillgängliga tider.");
+      });
+  }, []);
+
+  // ✅ Handle input changes
+  const handleChange = (e) => {
+    setBooking({ ...booking, [e.target.name]: e.target.value });
+  };
+
+  // ✅ Update available time slots when a date is selected
+  const handleDateChange = (e) => {
+    const selectedDay = new Date(e.target.value)
+      .toLocaleString("en-US", { weekday: "long" })
+      .toLowerCase();
+    setBooking({ ...booking, date: e.target.value });
+    setAvailableTimes(availability[selectedDay] || []);
+  };
+
+  // ✅ Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitted(false);
+    setError(null);
+    setLoading(true);
+
+    if (Object.values(booking).some(field => !field.trim())) {
+      setError("Vänligen fyll i alla fält innan du bokar.");
+      setLoading(false);
+      return;
     }
 
-    const params = parseFormData(e.postData.contents);
-    const bookingsSheet = SpreadsheetApp.openById(BOOKINGS_SHEET_ID).getActiveSheet();
+    try {
+      const formData = new URLSearchParams(booking);
 
-    bookingsSheet.appendRow([
-      params.name || "Okänd",
-      params.service || "Ej specificerad",
-      params.date || "Ej angivet",
-      params.time || "Ej angivet",
-      params.contact || "Ej angivet",
-      params.location || "Ej angivet",
-      new Date().toLocaleString(),
-    ]);
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString(),
+      });
 
-    return sendCorsResponse({ message: "Bokning bekräftad!", ...params });
-  } catch (error) {
-    return sendCorsResponse({ error: "Ett fel uppstod: " + error.message });
-  }
-}
+      if (!response.ok) throw new Error("Fel vid API-anrop.");
 
-// Extract booked slots from bookings data
-function extractBookedSlots(bookingsSheet) {
-  const bookingsData = bookingsSheet.getDataRange().getValues();
-  const bookedSlots = {};
+      const responseData = await response.json();
+      setSubmitted(responseData);
+      setBooking({
+        name: "",
+        service: "",
+        date: "",
+        time: "",
+        location: "",
+        contact: "",
+      });
+    } catch (error) {
+      setError("Det gick inte att skicka bokningen. Försök igen senare.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  for (let i = 1; i < bookingsData.length; i++) { 
-    const date = new Date(bookingsData[i][2]); 
-    const time = bookingsData[i][3]; 
-    const day = date.toLocaleString("en-US", { weekday: "long" }).toLowerCase();
+  return (
+    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
+        Stella och Isabels Bokning
+      </h1>
 
-    if (!bookedSlots[day]) bookedSlots[day] = [];
-    bookedSlots[day].push(time);
-  }
+      {!submitted ? (
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <label>Ditt namn:</label>
+          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required />
 
-  return bookedSlots;
-}
+          <label>Välj tjänst:</label>
+          <select name="service" onChange={handleChange} required>
+            <option value="">Välj tjänst</option>
+            <option value="Hundpromenad">Hundpassning</option>
+            <option value="Barnpassning">Barnpassning</option>
+          </select>
 
-// Generate availability
-function generateAvailability(schedule, bookedSlots) {
-  const availability = {};
+          <label>Adress eller område:</label>
+          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required />
 
-  for (const day in schedule) {
-    const [startTime, endTime] = schedule[day];
-    const allSlots = generateTimeSlots(startTime, endTime);
-    availability[day] = allSlots.filter(slot => !bookedSlots[day] || !bookedSlots[day].includes(slot));
-  }
+          <label>Välj datum:</label>
+          <input type="date" name="date" onChange={handleDateChange} required />
 
-  return availability;
-}
+          <label>Välj tid:</label>
+          <select name="time" onChange={handleChange} required>
+            <option value="">Välj en tid</option>
+            {availableTimes.map((time, index) => (
+              <option key={index} value={time}>{time}</option>
+            ))}
+          </select>
 
-// Generate 1-hour time slots
-function generateTimeSlots(startTime, endTime) {
-  const slots = [];
-  let start = parseTime(startTime);
-  const end = parseTime(endTime);
+          <label>Telefonnummer eller e-post:</label>
+          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required />
 
-  while (start < end) {
-    slots.push(formatTime(start));
-    start.setMinutes(start.getMinutes() + 60); 
-  }
-  
-  return slots;
-}
+          {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
 
-// Convert "HH:MM" string to Date object
-function parseTime(timeStr) {
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-}
-
-// Format Date object to "HH:MM"
-function formatTime(date) {
-  return date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0");
-}
-
-// Parse form data
-function parseFormData(data) {
-  return Object.fromEntries(data.split("&").map(pair => {
-    const [key, value] = pair.split("=");
-    return [decodeURIComponent(key), decodeURIComponent(value)];
-  }));
-}
-
-// Send CORS response
-function sendCorsResponse(data) {
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
+          <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
+            {loading ? "Skickar..." : "Boka"}
+          </button>
+        </form>
+      ) : (
+        <div style={{ textAlign: "center", padding: "20px", border: "1px solid green", borderRadius: "5px", backgroundColor: "#d4edda" }}>
+          <h2 style={{ color: "#155724" }}>Bokning bekräftad!</h2>
+          <p><strong>Namn:</strong> {submitted.name}</p>
+          <p><strong>Tjänst:</strong> {submitted.service}</p>
+          <p><strong>Datum:</strong> {submitted.date}</p>
+          <p><strong>Tid:</strong> {submitted.time}</p>
+          <p><strong>Plats:</strong> {submitted.location}</p>
+          <p><strong>Kontakt:</strong> {submitted.contact}</p>
+          <button onClick={() => setSubmitted(null)} style={{ padding: "10px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
+            Boka en ny tid
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
