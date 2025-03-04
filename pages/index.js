@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7sS7EJadXz3kcoJelUG0R_z7kPOXZHINqlpUb_hiwWe5ksy6WEXDCAVeF3Wwg5kSa/exec"; // Replace with your actual script URL
+const GOOGLE_SCRIPT_URL = "YOUR_NEW_GOOGLE_SCRIPT_URL_HERE"; 
 
 export default function StellaBookingApp() {
   const [booking, setBooking] = useState({
@@ -16,30 +16,38 @@ export default function StellaBookingApp() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [availability, setAvailability] = useState(null);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
 
-  // Fetch available hours from Google Sheets
+  // ✅ Fetch available time slots from Google Script
   useEffect(() => {
     fetch(GOOGLE_SCRIPT_URL)
       .then(response => response.json())
-      .then(data => setAvailability(data))
+      .then(data => {
+        setAvailability(data);
+
+        // ✅ Find available dates (days with time slots)
+        const dates = Object.keys(data).filter(day => data[day].length > 0);
+        setAvailableDates(dates);
+      })
       .catch(() => setError("Kunde inte ladda tillgängliga tider."));
   }, []);
 
-  const handleChange = (e) => {
-    setBooking({ ...booking, [e.target.name]: e.target.value });
+  // ✅ Update available time slots when a date is selected
+  const handleDateChange = (e) => {
+    const selectedDay = new Date(e.target.value).toLocaleString("en-US", { weekday: "long" }).toLowerCase();
+    setBooking({ ...booking, date: e.target.value });
+
+    // Show available time slots for selected day
+    if (availability[selectedDay]) {
+      setAvailableTimes(availability[selectedDay]);
+    } else {
+      setAvailableTimes([]);
+    }
   };
 
-  // Function to check if selected date & time are available
-  const isTimeAvailable = () => {
-    if (!availability) return false;
-
-    const day = new Date(booking.date).toLocaleString("en-US", { weekday: "long" }).toLowerCase();
-    const [hour] = booking.time.split(":").map(Number);
-
-    return (
-      hour >= parseInt(availability[day]?.start.split(":")[0]) &&
-      hour < parseInt(availability[day]?.end.split(":")[0])
-    );
+  const handleChange = (e) => {
+    setBooking({ ...booking, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -55,13 +63,6 @@ export default function StellaBookingApp() {
         setLoading(false);
         return;
       }
-    }
-
-    // Validate selected time
-    if (!isTimeAvailable()) {
-      setError("Den valda tiden är inte tillgänglig. Vänligen välj en annan tid.");
-      setLoading(false);
-      return;
     }
 
     try {
@@ -99,38 +100,34 @@ export default function StellaBookingApp() {
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <label>Ditt namn:</label>
-          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
-          
+          <input type="text" name="name" placeholder="Ditt namn" onChange={handleChange} required />
+
           <label>Välj tjänst:</label>
-          <select name="service" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
+          <select name="service" onChange={handleChange} required>
             <option value="">Välj tjänst</option>
             <option value="Hundpromenad">Hundpassning</option>
             <option value="Barnpassning">Barnpassning</option>
           </select>
-          
-          <label>Adress eller område:</label>
-          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
-          
+
           <label>Välj datum:</label>
-          <input type="date" name="date" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
-          
+          <input type="date" name="date" onChange={handleDateChange} required />
+
           <label>Välj tid:</label>
-          <input type="time" name="time" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+          <select name="time" onChange={handleChange} required>
+            <option value="">Välj en tid</option>
+            {availableTimes.map((time, index) => (
+              <option key={index} value={time}>{time}</option>
+            ))}
+          </select>
 
           {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
-          
-          <label>Telefonnummer eller e-post:</label>
-          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
-          
-          <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "5px", fontWeight: "bold", cursor: "pointer" }}>
+
+          <button type="submit" disabled={loading}>
             {loading ? "Skickar..." : "Boka"}
           </button>
         </form>
       ) : (
-        <div style={{ textAlign: "center", padding: "20px", border: "1px solid #28a745", borderRadius: "5px", backgroundColor: "#d4edda" }}>
-          <h2 style={{ color: "#155724" }}>Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Vi kommer att kontakta dig snarast med en bekräftelse.</p>
-        </div>
+        <p>Bokning skickad!</p>
       )}
     </div>
   );
