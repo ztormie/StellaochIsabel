@@ -71,7 +71,7 @@ export default function StellaBookingApp() {
           <label>Välj tjänst:</label>
           <select name="service" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
             <option value="">Välj tjänst</option>
-            <option value="Hundpromenad">Hundpromenad</option>
+            <option value="Hundpromenad">Hundpassning</option>
             <option value="Barnpassning">Barnpassning</option>
           </select>
           
@@ -94,7 +94,7 @@ export default function StellaBookingApp() {
       ) : (
         <div style={{ textAlign: "center", padding: "20px", border: "1px solid #28a745", borderRadius: "5px", backgroundColor: "#d4edda" }}>
           <h2 style={{ color: "#155724" }}>Bokning skickad!</h2>
-          <p>Tack, {booking.name}! Stella och Isabel kommer att kontakta dig med en bekräftelse.</p>
+          <p>Tack, {booking.name}! Vi kommer att kontakta dig snarast med en bekräftelse.</p>
         </div>
       )}
     </div>
