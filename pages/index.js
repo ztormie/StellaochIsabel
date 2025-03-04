@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7sS7EJadXz3kcoJelUG0R_z7kPOXZHINqlpUb_hiwWe5ksy6WEXDCAVeF3Wwg5kSa/exec"; 
+// ✅ Use the correct API URL (Stella och Isabel script)
+const API_URL = "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec";
 
 export default function StellaBookingApp() {
   const [booking, setBooking] = useState({
@@ -15,78 +16,75 @@ export default function StellaBookingApp() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [availability, setAvailability] = useState(null);
+  const [availability, setAvailability] = useState({});
   const [availableDates, setAvailableDates] = useState([]);
   const [availableTimes, setAvailableTimes] = useState([]);
 
-  // ✅ Fetch available time slots from Google Script
+  // ✅ Fetch available time slots from Google Apps Script on load
   useEffect(() => {
-    fetch(GOOGLE_SCRIPT_URL)
+    fetch(API_URL)
       .then(response => response.json())
       .then(data => {
+        console.log("Fetched availability data:", data);
         setAvailability(data);
-
-        // ✅ Find available dates (days with time slots)
-        const dates = Object.keys(data).filter(day => data[day].length > 0);
-        setAvailableDates(dates);
+        setAvailableDates(Object.keys(data).filter(day => data[day].length > 0));
       })
-      .catch(() => setError("Kunde inte ladda tillgängliga tider."));
+      .catch(error => {
+        console.error("API Fetch Error:", error);
+        setError("Kunde inte ladda tillgängliga tider.");
+      });
   }, []);
 
-  // ✅ Update available time slots when a date is selected
-  const handleDateChange = (e) => {
-    const selectedDay = new Date(e.target.value).toLocaleString("en-US", { weekday: "long" }).toLowerCase();
-    setBooking({ ...booking, date: e.target.value });
-
-    // Show available time slots for selected day
-    if (availability[selectedDay]) {
-      setAvailableTimes(availability[selectedDay]);
-    } else {
-      setAvailableTimes([]);
-    }
-  };
-
+  // ✅ Handle input changes
   const handleChange = (e) => {
     setBooking({ ...booking, [e.target.name]: e.target.value });
   };
 
+  // ✅ Update available time slots when a date is selected
+  const handleDateChange = (e) => {
+    const selectedDay = new Date(e.target.value)
+      .toLocaleString("en-US", { weekday: "long" })
+      .toLowerCase();
+    setBooking({ ...booking, date: e.target.value });
+    setAvailableTimes(availability[selectedDay] || []);
+  };
+
+  // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(false);
     setError(null);
     setLoading(true);
 
-    // Validate all fields are filled
-    for (const key in booking) {
-      if (!booking[key]) {
-        setError("Vänligen fyll i alla fält innan du bokar.");
-        setLoading(false);
-        return;
-      }
+    if (Object.values(booking).some(field => !field.trim())) {
+      setError("Vänligen fyll i alla fält innan du bokar.");
+      setLoading(false);
+      return;
     }
 
     try {
-      const formData = new URLSearchParams();
-      Object.entries(booking).forEach(([key, value]) => formData.append(key, value));
+      const formData = new URLSearchParams(booking);
 
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbwsOkTYBSdMw9SUuZYA10H2ecYTNIuixnOHfWn71lYZ7uBbw5mgVVc63QrSH3fWmHbI/exec",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData.toString(),
-        }
-      );
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString(),
+      });
 
-      if (!response.ok) {
-        throw new Error("Fel vid API-anrop. Kontrollera API-URL och Google Apps Script-behörigheter.");
-      }
+      if (!response.ok) throw new Error("Fel vid API-anrop.");
 
-      setSubmitted(true);
+      const responseData = await response.json();
+      setSubmitted(responseData);
+      setBooking({
+        name: "",
+        service: "",
+        date: "",
+        time: "",
+        location: "",
+        contact: "",
+      });
     } catch (error) {
-      setError("Det gick inte att skicka bokningen. Kontrollera API-URL och försök igen senare.");
+      setError("Det gick inte att skicka bokningen. Försök igen senare.");
     } finally {
       setLoading(false);
     }
@@ -97,6 +95,7 @@ export default function StellaBookingApp() {
       <h1 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
         Stella och Isabels Bokning
       </h1>
+
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <label>Ditt namn:</label>
@@ -128,12 +127,23 @@ export default function StellaBookingApp() {
 
           {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
 
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading} style={{ padding: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
             {loading ? "Skickar..." : "Boka"}
           </button>
         </form>
       ) : (
-        <p>Bokning skickad!</p>
+        <div style={{ textAlign: "center", padding: "20px", border: "1px solid green", borderRadius: "5px", backgroundColor: "#d4edda" }}>
+          <h2 style={{ color: "#155724" }}>Bokning bekräftad!</h2>
+          <p><strong>Namn:</strong> {submitted.name}</p>
+          <p><strong>Tjänst:</strong> {submitted.service}</p>
+          <p><strong>Datum:</strong> {submitted.date}</p>
+          <p><strong>Tid:</strong> {submitted.time}</p>
+          <p><strong>Plats:</strong> {submitted.location}</p>
+          <p><strong>Kontakt:</strong> {submitted.contact}</p>
+          <button onClick={() => setSubmitted(null)} style={{ padding: "10px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
+            Boka en ny tid
+          </button>
+        </div>
       )}
     </div>
   );
