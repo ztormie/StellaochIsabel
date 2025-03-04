@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; // Replace with your actual script URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7sS7EJadXz3kcoJelUG0R_z7kPOXZHINqlpUb_hiwWe5ksy6WEXDCAVeF3Wwg5kSa/exec"; // Replace with your actual script URL
 
 export default function StellaBookingApp() {
   const [booking, setBooking] = useState({
