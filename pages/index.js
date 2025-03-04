@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; // Replace with your actual script URL
 
 export default function StellaBookingApp() {
   const [booking, setBooking] = useState({
@@ -9,12 +11,35 @@ export default function StellaBookingApp() {
     location: "",
     contact: "",
   });
+
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [availability, setAvailability] = useState(null);
+
+  // Fetch available hours from Google Sheets
+  useEffect(() => {
+    fetch(GOOGLE_SCRIPT_URL)
+      .then(response => response.json())
+      .then(data => setAvailability(data))
+      .catch(() => setError("Kunde inte ladda tillgängliga tider."));
+  }, []);
 
   const handleChange = (e) => {
     setBooking({ ...booking, [e.target.name]: e.target.value });
+  };
+
+  // Function to check if selected date & time are available
+  const isTimeAvailable = () => {
+    if (!availability) return false;
+
+    const day = new Date(booking.date).toLocaleString("en-US", { weekday: "long" }).toLowerCase();
+    const [hour] = booking.time.split(":").map(Number);
+
+    return (
+      hour >= parseInt(availability[day]?.start.split(":")[0]) &&
+      hour < parseInt(availability[day]?.end.split(":")[0])
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -23,12 +48,20 @@ export default function StellaBookingApp() {
     setError(null);
     setLoading(true);
 
+    // Validate all fields are filled
     for (const key in booking) {
       if (!booking[key]) {
         setError("Vänligen fyll i alla fält innan du bokar.");
         setLoading(false);
         return;
       }
+    }
+
+    // Validate selected time
+    if (!isTimeAvailable()) {
+      setError("Den valda tiden är inte tillgänglig. Vänligen välj en annan tid.");
+      setLoading(false);
+      return;
     }
 
     try {
@@ -83,6 +116,8 @@ export default function StellaBookingApp() {
           
           <label>Välj tid:</label>
           <input type="time" name="time" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+
+          {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
           
           <label>Telefonnummer eller e-post:</label>
           <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
