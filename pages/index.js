@@ -109,6 +109,9 @@ export default function StellaBookingApp() {
             <option value="Barnpassning">Barnpassning</option>
           </select>
 
+          <label>Adress eller område:</label>
+          <input type="text" name="location" placeholder="Adress eller område" onChange={handleChange} required />
+
           <label>Välj datum:</label>
           <input type="date" name="date" onChange={handleDateChange} required />
 
@@ -119,6 +122,9 @@ export default function StellaBookingApp() {
               <option key={index} value={time}>{time}</option>
             ))}
           </select>
+
+          <label>Telefonnummer eller e-post:</label>
+          <input type="text" name="contact" placeholder="Telefonnummer eller e-post" onChange={handleChange} required />
 
           {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
 
